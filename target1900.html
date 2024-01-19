@@ -18,14 +18,10 @@
         <input type="number" id="end" required>
         <br>
         <button type="button" onclick="generateRandomNumbers()">ランダム数列生成</button>
-        <button onclick="readFile()">ファイルを読み込む</button>
-        <h2>読み込まれたテキスト:</h2>
-        <pre id="output"></pre>
     </form>
 
     <h2>生成されたランダム数列:</h2>
     <div id="result"></div>
-
 
     <script>
         function generateRandomNumbers() {
@@ -67,24 +63,45 @@
 
             return result;
         }
+    </script>
+    <h1>Text File Reader</h1>
+
+    <input type="file" id="fileInput" accept=".txt">
+    <br>
+    <button onclick="readFile()">ファイルを読み込む</button>
+
+    <h2>読み込まれたテキスト:</h2>
+    <pre id="output"></pre>
+
+    <script>
         function readFile() {
+            var fileInput = document.getElementById('fileInput');
             var outputElement = document.getElementById('output');
 
-            // ファイルのパスを指定
-            var filePath = 'target1900.txt';
+            var file = fileInput.files[0];
+            if (file) {
+                var reader = new FileReader();
 
-            // XMLHttpRequestを使用してファイルを非同期で読み込む
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', filePath, true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    var content = xhr.responseText;
-                    outputElement.textContent = content;
-                } else if (xhr.status !== 200) {
-                    outputElement.textContent = "ファイルの読み込みに失敗しました。";
-                }
-            };
-            xhr.send();
+                reader.onload = function(e) {
+                    var content = e.target.result;
+
+                    // 各行ごとに分割
+                    var lines = content.split('\n');
+
+                    // 各行を処理
+                    var resultArray = lines.map(function(line) {
+                        var [number, english, japanese, description] = line.split('\t');
+                        return { number, english, japanese, description };
+                    });
+
+                    // 結果を表示
+                    outputElement.textContent = JSON.stringify(resultArray, null, 2);
+                };
+
+                reader.readAsText(file);
+            } else {
+                outputElement.textContent = "ファイルが選択されていません。";
+            }
         }
     </script>
 </body>
