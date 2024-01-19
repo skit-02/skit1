@@ -3,6 +3,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>wordtest_target1900</title>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
     <link rel="stylesheet" href="stylesheet_1900.css">
 </head>
 
@@ -60,6 +62,33 @@
             }
 
             return result;
+        }
+    </script>
+
+    <button onclick="readFile()">ファイルを読み込む</button>
+
+    <h2>読み込まれたテキスト:</h2>
+    <pre id="output"></pre>
+
+    <script>
+        function readFile() {
+            var outputElement = document.getElementById('output');
+
+            // ファイルのパスを指定
+            var filePath = 'target1900.txt';
+
+            // XMLHttpRequestを使用してファイルを非同期で読み込む
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', filePath, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var content = xhr.responseText;
+                    outputElement.textContent = content;
+                } else if (xhr.status !== 200) {
+                    outputElement.textContent = "ファイルの読み込みに失敗しました。";
+                }
+            };
+            xhr.send();
         }
     </script>
 </body>
