@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wordtest_target1900</title>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <link rel="stylesheet" href="stylesheet_1900.css">
+</head>
+
+<body>
+    <h1>単語の範囲を入力してください</h1>
+    <form id="rangeForm"><!--formタグはサーバーに送信するのに必要-->
+        <label for="start">最初の値:</label>
+        <input type="number" id="start" required>
+        <br>
+        <label for="end">最後の値:</label>
+        <input type="number" id="end" required>
+        <br>
+        <button type="button" onclick="generateRandomNumbers()">ランダム数列生成</button>
+    </form>
+
+    <h2>生成されたランダム数列:</h2>
+    <div id="result"></div>
+
+    <script>
+        function generateRandomNumbers() {
+            // 入力値の取得(documentはhtmlの操作に使う接頭辞みたいなやつ)
+            var startValue = parseInt(document.getElementById('start').value); //parseIntで数字に変換
+            var endValue = parseInt(document.getElementById('end').value);
+
+            // 入力が有効であるか確認
+            if (isNaN(startValue) || isNaN(endValue)) {
+                alert('有効な数値を入力してください。'); // alertはポップアップ表示めっちゃいい
+                return;
+            }
+
+            // ランダムな数列の生成(varが配列)
+            var uniqueRandomNumbers = getUniqueRandomNumbers(startValue, endValue, 20);
+            // 数列をソート
+            uniqueRandomNumbers.sort(function(a, b) {
+                return a - b;
+            });
+            // 結果の表示
+            document.getElementById('result').textContent = uniqueRandomNumbers.join(', ');
+        }
+
+        function getUniqueRandomNumbers(min, max, count) {
+            var numbers = [];
+
+            // 利用可能なすべての数値を含む配列を作成
+            for (var i = min; i <= max; i++) {
+                numbers.push(i);
+            }
+
+            // 配列からランダムに数を選んで取り除く
+            var result = [];
+            for (var j = 0; j < count; j++) {
+                var randomIndex = Math.floor(Math.random() * numbers.length);
+                var selectedNumber = numbers.splice(randomIndex, 1)[0];
+                result.push(selectedNumber);
+            }
+
+            return result;
+        }
+    </script>
+</body>
+</html>
