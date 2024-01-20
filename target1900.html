@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,13 +18,22 @@
         <label for="end">最後の値:</label>
         <input type="number" id="end" required>
         <br>
-        <button type="button" onclick="generateRandomNumbers()">ランダム数列生成</button>
+        <button type="button" onclick="generateRandomNumbers()">OK</button>
     </form>
 
-    <h2>生成されたランダム数列:</h2>
-    <div id="result"></div>
+    <input type="file" id="fileInput" accept=".txt">
+    <br>
+    <button onclick="readFile()">ファイルを読み込む</button>
+    <pre id="output"></pre>
+
+    <form>
+        <button onclick="downloadFile()">テストをダウンロードする</button>
+    </form>
 
     <script>
+        var resultArray;
+        var uniqueRandomNumbers;
+
         function generateRandomNumbers() {
             // 入力値の取得(documentはhtmlの操作に使う接頭辞みたいなやつ)
             var startValue = parseInt(document.getElementById('start').value); //parseIntで数字に変換
@@ -36,13 +46,11 @@
             }
 
             // ランダムな数列の生成(varが配列)
-            var uniqueRandomNumbers = getUniqueRandomNumbers(startValue, endValue, 20);
+            uniqueRandomNumbers = getUniqueRandomNumbers(startValue, endValue, 20);
             // 数列をソート
-            uniqueRandomNumbers.sort(function(a, b) {
+            uniqueRandomNumbers.sort(function (a, b) {
                 return a - b;
             });
-            // 結果の表示
-            document.getElementById('result').textContent = uniqueRandomNumbers.join(', ');
         }
 
         function getUniqueRandomNumbers(min, max, count) {
@@ -63,17 +71,6 @@
 
             return result;
         }
-    </script>
-    <h1>Text File Reader</h1>
-
-    <input type="file" id="fileInput" accept=".txt">
-    <br>
-    <button onclick="readFile()">ファイルを読み込む</button>
-
-    <h2>読み込まれたテキスト:</h2>
-    <pre id="output"></pre>
-
-    <script>
         function readFile() {
             var fileInput = document.getElementById('fileInput');
             var outputElement = document.getElementById('output');
@@ -82,20 +79,20 @@
             if (file) {
                 var reader = new FileReader();
 
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     var content = e.target.result;
 
                     // 各行ごとに分割
                     var lines = content.split('\n');
 
-                    // 各行を処理
-                    var resultArray = lines.map(function(line) {
-                        var [number, english, japanese, description] = line.split('\t');
-                        return { number, english, japanese, description };
+                    // 各行を処理({}は辞書みたいな感じ)
+                    resultArray = lines.map(function (line) {
+                        var [num, eng, jap, info] = line.split('\t');
+                        return [num, eng, jap, info];
                     });
 
                     // 結果を表示
-                    outputElement.textContent = JSON.stringify(resultArray, null, 2);
+                    outputElement.textContent = 'ファイルの読み込みが完了しました';
                 };
 
                 reader.readAsText(file);
@@ -103,6 +100,38 @@
                 outputElement.textContent = "ファイルが選択されていません。";
             }
         }
+        function downloadFile() {
+            // 対応する英単語を抽出
+            var selectedWords = uniqueRandomNumbers.map(function (sequenceNumber) {
+                var foundObject = resultArray.find(item => item[0] == sequenceNumber.toString());
+                return foundObject ? parseInt(foundObject[0]) + ' ' + ',' + foundObject[1] + ',' + ': _ _ _ _ _ _' : '';
+            });
+
+            // 文字数ごとに改行を挿入
+            var csvContent = "";
+            for (var i = 0; i < 20; i += 2) {
+                csvContent += selectedWords[i];
+                csvContent += ',';
+                csvContent += selectedWords[i + 1];
+                csvContent += '\n';
+            }
+
+            // Blobオブジェクトを生成
+            var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+
+            // ダウンロード用のリンクを作成
+            var downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(blob);
+            downloadLink.download = 'output.csv';
+
+            // リンクをクリックしてダウンロードを開始
+            downloadLink.click();
+        }
     </script>
 </body>
+
 </html>
+
+<!--選択画面をなくしてファイルの選択から単語帳の選択をするのどっちがいいか，
+    あと作成日とかいる？
+それとサイズの調整-->
