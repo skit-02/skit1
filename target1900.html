@@ -19,6 +19,7 @@
         <input type="number" id="end" required>
         <br>
         <button type="button" onclick="generateRandomNumbers()">OK</button>
+        <pre id="check"></pre>
     </form>
 
     <input type="file" id="fileInput" accept=".txt">
@@ -51,6 +52,8 @@
             uniqueRandomNumbers.sort(function (a, b) {
                 return a - b;
             });
+            var checkElement = document.getElementById('check');
+            checkElement.textContent = "取得する単語が決定しました\n使用するファイルを選択してください";
         }
 
         function getUniqueRandomNumbers(min, max, count) {
